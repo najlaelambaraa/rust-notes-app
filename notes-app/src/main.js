@@ -5,7 +5,7 @@ async function greet() {
   const greetMsgEl = document.getElementById('greet-msg');
   greetMsgEl.textContent = await invoke('greet', { name: greetInputEl.value });
 }
-
+//Etape 5
 async function saveNote() {
   const note = document.getElementById('noteInput').value;
   await invoke('save_note', { note })
@@ -24,11 +24,12 @@ async function loadNotes() {
       })
       .catch(err => alert('Error load notes: ' + err));
 }
-async function updateNote() {
+
+async function update_Note() {
   console.log('updateNote() called');
   const oldNote = document.getElementById('oldNote').value;
   const newNote = document.getElementById('newNote').value;
-  await invoke('update_note', { oldNote, newNote })
+  await invoke('update_file_note', { oldNote, newNote })
       .then(() => {
           alert('Note updated!');
           document.getElementById('oldNote').value = '';
@@ -38,9 +39,9 @@ async function updateNote() {
       .catch(err => alert('Error to update note: ' + err));
 }
 
-async function deleteNote() {
+async function delete_Note() {
   const note = document.getElementById('deleteNote').value;
-  await invoke('delete_note', { note })
+  await invoke('delete_file_note', { note })
       .then(() => {
           alert('Note deleted');
           document.getElementById('deleteNote').value = '';
@@ -49,7 +50,6 @@ async function deleteNote() {
       .catch(err => alert('Error to delete note: ' + err));
 }
 
-
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveNoteBtn').addEventListener('click', saveNote);
   document.getElementById('loadNotesBtn').addEventListener('click', loadNotes);
@@ -57,7 +57,8 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     greet();
   });
-  document.getElementById('updateNoteBtn').addEventListener('click', updateNote); 
-  document.getElementById('deleteNoteBtn').addEventListener('click', deleteNote);
+  document.getElementById('updateNoteBtn').addEventListener('click', update_Note); 
+  document.getElementById('deleteNoteBtn').addEventListener('click', delete_Note);
 });
+
 

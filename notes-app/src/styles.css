@@ -23,7 +23,7 @@ h1, h2 {
   color: #5D3FD3;
 }
 
-textarea, input[type="text"] {
+textarea, input[type="text"], input[type="number"] {
   width: calc(100% - 20px);
   padding: 10px;
   margin-top: 5px;
