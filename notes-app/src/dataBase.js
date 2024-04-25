@@ -6,7 +6,10 @@ async function createNote() {
   }
   
   async function readNotes() {
-    await window.rpc.invoke('get_notes');
+    await window.rpc.invoke('get_notes').then(notes => {
+        document.getElementById('notesread').innerText = notes;
+    })
+    .catch(err => alert('Error load notes: ' + err));
   }
   
   async function updateNote() {
