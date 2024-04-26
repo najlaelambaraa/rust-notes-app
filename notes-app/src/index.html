@@ -44,20 +44,20 @@
             <section class="section">
                 <input type="text" id="title" placeholder="Title">
                 <input type="text" id="content" placeholder="Content">
-                <button onclick="createNote()">Create Note</button>
-                <button onclick="readNotes()">Read Notes</button>
+                <button id="createNoteButton">Create Note</button>
+                <button id="readNotesButton">Read Notes</button>
             </section>
             <section class="section">
                 <h2>Update Note</h2>
                 <input type="number" id="updateId" placeholder="Note ID to Update">
                 <input type="text" id="updateTitle" placeholder="New Title">
                 <input type="text" id="updateContent" placeholder="New Content">
-                <button onclick="updateNote()">Update Note</button>
+                <button id="updateNoteButton">Update Note</button>
             </section>
             <section class="section">
                 <h2>Delete Note</h2>
                 <input type="number" id="deleteId" placeholder="Note ID to Delete">
-                <button onclick="deleteNote()">Delete Note</button>
+                <button id="deleteNoteButton">Delete Note</button>
             </section>
                 <div id="notesread"></div>
             </div>

@@ -9,11 +9,10 @@ use serde_json::json;
 use tokio::sync::Mutex;
 use async_trait::async_trait;
 mod command;
-use command::{create_note,get_notes, update_note, delete_note};
+use command::{create_note, update_note, delete_note};
 mod noteFile;
 use noteFile::{save_note, read_notes,update_file_note,delete_file_note};
 
-//Etape 6
 
 fn map_error<E>(err: E) -> InvokeError
 where
@@ -22,13 +21,7 @@ where
     InvokeError::from(err.to_string())
 }
 
-#[derive(Debug, Clone)]
-struct Note {
-    id: i32,
-    title: String,
-    content: String,
-}
-
+//Etape 6
 // Database initialization function
 fn init_db() -> SqliteResult<()> {
     let conn = Connection::open("notes.db")?;
@@ -52,7 +45,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(app_state) 
-        .invoke_handler(tauri::generate_handler![get_notes,create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
+        .invoke_handler(tauri::generate_handler![create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
 }

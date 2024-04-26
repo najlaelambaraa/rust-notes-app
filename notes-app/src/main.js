@@ -25,8 +25,6 @@ async function loadNotes() {
       .catch(err => alert('Error load notes: ' + err));
 }
 
-
-
 async function update_Note() {
   const noteId = document.getElementById('noteId').value;
   const newContent = document.getElementById('newContent').value;
