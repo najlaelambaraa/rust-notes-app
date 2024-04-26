@@ -14,19 +14,19 @@ async function createNote() {
   })
   .catch(err => alert('Error to save note: ' + err));
   console.log('createNote() end');
-
   }
   
   async function readNotes() {
     await invoke('get_notes').then(notes => {
         alert('Note saved!');
-        document.getElementById('notesread').innerText = notes;
+       const note = document.getElementById('notesread').innerText = notes;
+        console.log('note',note);
     })
     .catch(err => alert('Error load notes: ' + err));
   }
   
   async function updateNote() {
-    const id = document.getElementById('updateId').value;
+    const id = parseInt(document.getElementById('updateId').value, 10);
     const title = document.getElementById('updateTitle').value;
     const content = document.getElementById('updateContent').value;
     console.log('updateNote() called ',title,content,id);
@@ -34,7 +34,7 @@ async function createNote() {
   }
   
   async function deleteNote() {
-    const id = document.getElementById('deleteId').value;
+    const id = parseInt(document.getElementById('deleteId').value, 10);
     console.log('deleteNote() called ',id);
     await invoke('delete_note', { id });
   }

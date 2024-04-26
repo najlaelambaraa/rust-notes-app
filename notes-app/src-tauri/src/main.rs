@@ -9,7 +9,7 @@ use serde_json::json;
 use tokio::sync::Mutex;
 use async_trait::async_trait;
 mod command;
-use command::{create_note, update_note, delete_note};
+use command::{create_note, update_note, delete_note,get_notes};
 mod noteFile;
 use noteFile::{save_note, read_notes,update_file_note,delete_file_note};
 
@@ -45,7 +45,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(app_state) 
-        .invoke_handler(tauri::generate_handler![create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
+        .invoke_handler(tauri::generate_handler![get_notes,create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
 }

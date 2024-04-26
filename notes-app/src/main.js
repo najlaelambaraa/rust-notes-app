@@ -6,12 +6,10 @@ async function greet() {
   greetMsgEl.textContent = await invoke('greet', { name: greetInputEl.value });
 }
 //Etape 5
-async function saveNote() {
-  const note = document.getElementById('noteInput').value;
-  await invoke('save_note', { note })
+async function saveNote(content) {
+  await invoke('save_note', { note: content })
       .then(() => {
           alert('Note saved!');
-          document.getElementById('noteInput').value = ''; 
           loadNotes(); 
       })
       .catch(err => alert('Error to save note: ' + err));
@@ -20,10 +18,11 @@ async function saveNote() {
 async function loadNotes() {
   await invoke('read_notes')
       .then(notes => {
-          document.getElementById('notesDisplay').innerText = notes;
+          document.getElementById('notesDisplay').innerText = notes; 
       })
       .catch(err => alert('Error load notes: ' + err));
 }
+
 
 async function update_Note() {
   const noteId = document.getElementById('noteId').value;
@@ -52,7 +51,24 @@ async function delete_Note() {
 
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('saveNoteBtn').addEventListener('click', saveNote);
+
+    var quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    document.getElementById('saveNoteBtn').addEventListener('click', function() {
+      var content = quill.root.innerHTML; // Obtient le contenu HTML de l'éditeur Quill
+      saveNote(content); // Appelle saveNote avec le contenu HTML
+      console.log("Saving content", content);
+  });
+  
+
+    document.getElementById('loadNotesBtn').addEventListener('click', function() {
+       
+        console.log("Load content into the editor");
+    });
+
+
   document.getElementById('loadNotesBtn').addEventListener('click', loadNotes);
   document.getElementById('updateNoteBtn').addEventListener('click', update_Note); 
   document.getElementById('deleteNoteBtn').addEventListener('click',function(event) {
@@ -60,5 +76,4 @@ window.addEventListener('DOMContentLoaded', () => {
     delete_Note()
 });
 });
-
 

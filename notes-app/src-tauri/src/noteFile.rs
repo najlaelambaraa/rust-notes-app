@@ -1,6 +1,15 @@
-//Etape 5
 use std::io::Write;
 
+/// Enregistre une note dans un fichier texte.
+/// 
+/// Cette fonction ajoute une note à la fin d'un fichier `notes.txt`. Si le fichier n'existe pas,
+/// il sera créé.
+///
+/// # Arguments
+/// * `note` - Une chaîne de caractères contenant la note à enregistrer.
+///
+/// # Panics
+/// Panique si le fichier ne peut pas être ouvert ou si l'écriture échoue.
 #[tauri::command]
 pub fn save_note(note: String) {
     let mut file = std::fs::OpenOptions::new()
@@ -11,12 +20,28 @@ pub fn save_note(note: String) {
         writeln!(file, "{}", note).expect("failed to write note");
 }
 
-//Read notes
+/// Lit et retourne toutes les notes du fichier `notes.txt`.
+///
+/// Si le fichier ne peut pas être lu, la fonction retourne une chaîne vide.
+///
+/// # Returns
+/// Une chaîne de caractères contenant toutes les notes.
 #[tauri::command]
 pub fn read_notes() -> String {
     std::fs::read_to_string("notes.txt").unwrap_or_else(|_| "".to_string())
 }
 
+/// Met à jour le contenu d'une note spécifique dans le fichier `notes.txt`.
+///
+/// # Arguments
+/// * `note_id` - L'identifiant de la note à mettre à jour, exprimé en chaîne de caractères.
+/// * `new_content` - Le nouveau contenu de la note.
+///
+/// # Returns
+/// Un `Result<(), String>` qui est `Ok` si la mise à jour a réussi, ou `Err` avec un message d'erreur.
+///
+/// # Errors
+/// Renvoie une erreur si l'ID de la note est invalide ou si l'ID spécifié est hors limites.
 #[tauri::command]
 pub fn update_file_note(note_id: String, new_content: String) -> Result<(), String> {
     println!("note_id: {}", note_id);
@@ -31,7 +56,16 @@ pub fn update_file_note(note_id: String, new_content: String) -> Result<(), Stri
     std::fs::write("notes.txt", new_contents).map_err(|e| e.to_string())
 }
 
-//Delete notes
+/// Supprime une note spécifique du fichier `notes.txt`.
+///
+/// # Arguments
+/// * `note_id` - L'identifiant de la note à supprimer, exprimé en chaîne de caractères.
+///
+/// # Returns
+/// Un `Result<(), String>` qui est `Ok` si la suppression a réussi, ou `Err` avec un message d'erreur.
+///
+/// # Errors
+/// Renvoie une erreur si l'ID de la note est invalide ou si l'ID spécifié est hors limites.
 #[tauri::command]
 pub fn delete_file_note(note_id: String) -> Result<(), String> {
     let note_id: usize = note_id.parse().map_err(|_| "Invalid note ID".to_string())?;
