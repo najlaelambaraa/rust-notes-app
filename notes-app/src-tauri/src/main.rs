@@ -9,7 +9,7 @@ use serde_json::json;
 use tokio::sync::Mutex;
 use async_trait::async_trait;
 mod command;
-use command::{create_note, update_note, delete_note,get_notes};
+use command::{create_note, update_note, delete_note,get_notes,export_note_to_pdf,export_all_notes_to_pdf};
 mod noteFile;
 use noteFile::{save_note, read_notes,update_file_note,delete_file_note};
 
@@ -34,20 +34,30 @@ fn init_db() -> SqliteResult<()> {
     )?;
     Ok(())
 }
+fn create_fts_table(conn: &Connection) -> Result<(), rusqlite::Error> {
+
+    conn.execute(
+        "CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(title, content);",
+        [],
+    )?;
+    Ok(())
+}
 
 struct AppState {
     conn: Arc<Mutex<Connection>>,
 }
 
-fn main() {
+fn main()-> Result<(), Box<dyn std::error::Error>> {
     let conn = Connection::open("notes.db").expect("failed to open database");
-    let app_state = Arc::new(Mutex::new(AppState { conn: Arc::new(Mutex::new(conn)) }));
+    create_fts_table(&conn)?;
 
+    let app_state = Arc::new(Mutex::new(AppState { conn: Arc::new(Mutex::new(conn)) }));
     tauri::Builder::default()
         .manage(app_state) 
-        .invoke_handler(tauri::generate_handler![get_notes,create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
+        .invoke_handler(tauri::generate_handler![export_all_notes_to_pdf,export_note_to_pdf,get_notes,create_note,update_note, delete_note,read_notes,save_note,update_file_note,delete_file_note])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
+    Ok(())
 }
 
 

@@ -2,23 +2,33 @@
     use async_trait::async_trait;
     // use serde::{Deserialize, Serialize};
     use tauri::command;
+    use tauri::api::dialog;
     use super::*;
     use std::sync::{Arc, Mutex};
     use serde::{ser::Serializer, Deserialize, Serialize};
     use rusqlite::{params, Error as RusqliteError};
+
+    use tauri::Window;
     // use rusqlite::{params, Result as SqlResult};
     // use thiserror::Error;
     // use anyhow::Result;
     use tauri::InvokeError;
     use std::env::Args;
-   
+    use pdf_canvas::{BuiltinFont, Canvas, Pdf};
+    use std::fs::File;
+    use genpdf::{elements, fonts, style, Document, SimplePageDecorator};
+    use rusqlite::Connection;
     //Etape 7
+    use rusqlite::OptionalExtension;
+    use genpdf::fonts::FontFamily;
+    use genpdf::Element;
     #[derive(Debug, Clone)]
     struct Note {
         id: i32,
         title: String,
         content: String,
     }
+    
     // #[command]
     // pub fn add_note(conn: &Connection, note: &str) {
     // conn.execute("INSERT INTO notes (content) VALUES (?1);", &[note]).expect("Failed to add note");
@@ -56,14 +66,26 @@
 //     Ok(notes)
 // }
 #[tauri::command]
-pub fn create_note(title: &str, content: &str) -> Result<(),InvokeError> {
-    let conn = Connection::open("notes.db").expect("failed to open database");
-    conn.execute(
+pub fn create_note(title: &str, content: &str) -> Result<(), InvokeError> {
+    let mut conn = Connection::open("notes.db").map_err(|e| InvokeError::from(e.to_string()))?;
+
+    let transaction = conn.transaction().map_err(|e| InvokeError::from(e.to_string()))?;
+
+    transaction.execute(
         "INSERT INTO notes (title, content) VALUES (?1, ?2)",
         params![title, content],
-    ).expect("failed to insert note");
+    ).map_err(|e| InvokeError::from(e.to_string()))?;
+
+    transaction.execute(
+        "INSERT INTO notes_fts (title, content) VALUES (?1, ?2)",
+        params![title, content],
+    ).map_err(|e| InvokeError::from(e.to_string()))?;
+
+    transaction.commit().map_err(|e| InvokeError::from(e.to_string()))?;
+
     Ok(())
 }
+
 #[tauri::command]
 pub fn get_note(id: i32) -> Result<Option<(String, String)>, InvokeError> {
     let conn = Connection::open("notes.db").expect("failed to open database");
@@ -105,27 +127,6 @@ pub fn get_notes() -> Result<Vec<(i32, String, String)>, InvokeError> {
     Ok(notes)
 }
 
-    // #[tauri::command]
-    // pub async fn get_notes(app_state: tauri::State<'_, AppState>) -> Result<Vec<Note>, InvokeError> {
-    // let conn = app_state.conn.lock().await;
-    // let mut stmt = conn.prepare("SELECT id, title, content FROM notes").map_err(map_error)?;
-    
-    // let note_iter = stmt.query_map([], |row| {
-    //     Ok(Note {
-    //         id: row.get(0)?,
-    //         title: row.get(1)?,
-    //         content: row.get(2)?,
-    //     })
-    // }).map_err(map_error)?;
-    
-    // let mut notes = Vec::new();
-    // for note in note_iter {
-    //     notes.push(note.map_err(map_error)?);
-    // }
-    // Ok(notes)
-    
-    // }
-
     #[tauri::command]
     pub fn update_note(id: i32,title: &str, content: &str) -> Result<(), InvokeError> {
     let conn = Connection::open("notes.db").expect("failed to open database");
@@ -145,3 +146,92 @@ pub fn get_notes() -> Result<Vec<(i32, String, String)>, InvokeError> {
     ).map_err(map_error)?;
     Ok(())
     }
+    
+    /// Exporte une note en fichier PDF
+    #[tauri::command]
+    pub fn export_note_to_pdf(id: i32) -> Result<String, String> {
+        let conn = Connection::open("notes.db").map_err(|e| e.to_string())?;
+        let note = conn.query_row(
+            "SELECT title, content FROM notes WHERE id = ?1",
+            params![id],
+            |row| {
+                // Explicitly specify the type for each column
+                let title: String = row.get(0)?;
+                let content: String = row.get(1)?;
+                Ok((title, content))
+            }
+        ).optional().map_err(|e| e.to_string())?;
+    
+        if let Some((title, content)) = note {
+            let font_family = fonts::from_files("./fonts", "LiberationSans", None)
+                .map_err(|e| format!("Failed to load font family: {}", e))?;
+            let mut doc = Document::new(font_family);
+    
+            doc.set_page_decorator(SimplePageDecorator::new());
+    
+            let mut header_style = style::Style::new();
+            header_style.set_font_size(20);
+            let header = elements::Paragraph::new(&title).styled(header_style);
+            doc.push(header);
+    
+            let mut text_style = style::Style::new();
+            text_style.set_font_size(12);
+            let text = elements::Paragraph::new(&content).styled(text_style);
+            doc.push(text);
+    
+            let file_path = format!("{}-{}.pdf", id, title.replace(" ", "_"));
+            let file = File::create(&file_path).map_err(|e| e.to_string())?;
+            doc.render(file).map_err(|e| e.to_string())?;
+    
+            Ok(format!("Note exported to {}", file_path))
+        } else {
+            Err("Note not found".to_string())
+        }
+    }
+    #[tauri::command]
+    pub fn export_all_notes_to_pdf() -> Result<String, String> {
+        let conn = Connection::open("notes.db").map_err(|e| e.to_string())?;
+        let mut stmt = conn.prepare("SELECT title, content FROM notes").map_err(|e| e.to_string())?;
+        let notes_iter = stmt.query_map(params![], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+        }).map_err(|e| e.to_string())?;
+    
+        let font_family = fonts::from_files("./src/static", "OpenSans", None)
+            .map_err(|e| format!("Failed to load font family: {}", e))?;
+        let mut doc = Document::new(font_family);
+        doc.set_page_decorator(SimplePageDecorator::new());
+    
+        for note in notes_iter {
+            let (title, content) = note.map_err(|e| e.to_string())?;
+            let mut header_style = style::Style::new();
+            header_style.set_font_size(18);
+            let header = elements::Paragraph::new(&title).styled(header_style);
+            doc.push(header);
+    
+            let mut text_style = style::Style::new();
+            text_style.set_font_size(12);
+            let text = elements::Paragraph::new(&content).styled(text_style);
+            doc.push(text);
+        }
+    
+        let file_path = "all_notes.pdf";
+        let file = File::create(file_path).map_err(|e| e.to_string())?;
+        doc.render(file).map_err(|e| e.to_string())?;
+    
+        Ok(format!("All notes exported to {}", file_path))
+    }
+    #[tauri::command]
+    pub fn search_notes(conn: &Connection, query: &str) -> Result<Vec<(String, String)>, InvokeError> {
+        let mut stmt = conn.prepare("SELECT title, content FROM notes_fts WHERE notes_fts MATCH ?").map_err(|e| InvokeError::from(e.to_string()))?;
+        let notes_iter = stmt.query_map(params![query], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        }).map_err(|e| InvokeError::from(e.to_string()))?;
+    
+        let mut notes = Vec::new();
+        for note in notes_iter {
+            notes.push(note.map_err(|e| InvokeError::from(e.to_string()))?);
+        }
+        Ok(notes)
+    }
+  
+    

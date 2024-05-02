@@ -57,8 +57,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('saveNoteBtn').addEventListener('click', function() {
-      var content = quill.root.innerHTML; // Obtient le contenu HTML de l'éditeur Quill
-      saveNote(content); // Appelle saveNote avec le contenu HTML
+      var content = quill.root.innerText;
+      saveNote(content); 
       console.log("Saving content", content);
   });
   
@@ -74,6 +74,15 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('deleteNoteBtn').addEventListener('click',function(event) {
     event.preventDefault();
     delete_Note()
+});
+document.getElementById('exportPdfBtn').addEventListener('click', () => {
+  window.__TAURI__.invoke('export_notes_to_pdf', { filePath: 'path/to/save/output.pdf' })
+      .then(response => {
+          console.log('PDF generated successfully!', response);
+      })
+      .catch(err => {
+          console.error('Error generating PDF:', err);
+      });
 });
 });
 

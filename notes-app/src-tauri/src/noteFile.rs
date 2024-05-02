@@ -1,5 +1,7 @@
 use std::io::Write;
-
+use printpdf::*;
+use std::fs::File;
+use std::io::BufWriter;
 /// Enregistre une note dans un fichier texte.
 /// 
 /// Cette fonction ajoute une note à la fin d'un fichier `notes.txt`. Si le fichier n'existe pas,

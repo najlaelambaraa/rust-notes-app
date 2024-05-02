@@ -1,6 +1,6 @@
 [package]
 name = "notes-app"
-version = "0.0.0"
+version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
@@ -14,12 +14,18 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
+pdf-canvas = "0.7.0"
+bstr = "1.9.1"
+genpdf = "0.2.0"
 tauri = { version = "1", features = [ "dialog-all", "shell-open"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-rusqlite = { version = "0.26.0", features = ["bundled"] }
+rusqlite = { version = "0.31.0", features = ["bundled"] }
 tokio = { version = "1", features = ["full"] }
 async-trait = "0.1"
+printpdf = "0.5.0"
+
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
