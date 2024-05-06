@@ -1,7 +1,5 @@
 use std::io::Write;
-use printpdf::*;
 use std::fs::File;
-use std::io::BufWriter;
 /// Enregistre une note dans un fichier texte.
 /// 
 /// Cette fonction ajoute une note à la fin d'un fichier `notes.txt`. Si le fichier n'existe pas,
@@ -10,8 +8,6 @@ use std::io::BufWriter;
 /// # Arguments
 /// * `note` - Une chaîne de caractères contenant la note à enregistrer.
 ///
-/// # Panics
-/// Panique si le fichier ne peut pas être ouvert ou si l'écriture échoue.
 #[tauri::command]
 pub fn save_note(note: String) {
     let mut file = std::fs::OpenOptions::new()
@@ -81,3 +77,26 @@ pub fn delete_file_note(note_id: String) -> Result<(), String> {
         Err("Note ID out of range".to_string())
     }
 }
+// use genpdf::{Document, elements};
+// use genpdf::fonts::FontFamily;
+// use tauri::command;
+// use dirs;
+// #[tauri::command]
+// pub fn export_notes_to_pdf() -> Result<String, String> {
+//     let notes = std::fs::read_to_string("notes.txt").map_err(|e| e.to_string())?;
+//     let mut doc = Document::new(FontFamily::Helvetica);
+//     doc.set_title("Mes notes");
+
+//     doc.push(elements::Paragraph::new(&notes));
+
+//     let downloads_dir = match dirs::download_dir() {
+//         Some(path) => path,
+//         None => return Err("Unable to find the downloads directory.".to_string()),
+//     };
+
+//     let output_path = downloads_dir.join("MyNotes.pdf");
+
+//     doc.render_to_file(&output_path).map_err(|e| e.to_string())?;
+
+//     Ok(output_path.to_str().unwrap_or_default().to_string())
+// }

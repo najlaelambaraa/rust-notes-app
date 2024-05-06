@@ -24,7 +24,7 @@ rusqlite = { version = "0.31.0", features = ["bundled"] }
 tokio = { version = "1", features = ["full"] }
 async-trait = "0.1"
 printpdf = "0.5.0"
-
+dirs = "5.0.1"
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

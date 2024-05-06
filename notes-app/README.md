@@ -38,3 +38,25 @@ git clone https://github.com/najlaelambaraa/rust-notes-app
 cd rust-notes-app
 ```
 ## Structure de Projet
+
+### Dossier principal `src`
+- **src/**
+  - **dataBase.js** : Contient les fonctions de gestion de la base de données.
+  - **index.html** : Le fichier HTML principal de l'interface utilisateur.
+  - **main.js** : Le script JavaScript principal qui gère la logique frontend.
+  - **styles.css** : Fichier CSS pour le style de l'interface utilisateur.
+
+### Dossier Tauri `src-tauri`
+- **src-tauri/**
+  - **src/**
+    - **command.rs** : Fichiers Rust pour définir les commandes Tauri.
+    - **main.rs** : Point d'entrée principal de l'application Tauri.
+    - **noteFile.rs** : Gère les opérations liées aux notes.
+  - **notes.db** : Base de données SQLite pour stocker les notes.
+  - **target/**
+    - **release/** : Contient les binaires compilés en mode release.
+
+### Notes
+- **`src/`** : Contient tous les fichiers relatifs à l'interface utilisateur, comme le HTML, le CSS, et le JavaScript.
+- **`src-tauri/`** : Contient tous les fichiers spécifiques à Tauri, y compris la configuration de Rust et les fichiers source.
+- **`target/release/`** : Dossier généré par le système de build Rust, contenant les exécutables compilés pour la distribution.

@@ -17,14 +17,28 @@ async function createNote() {
   }
   
   async function readNotes() {
-    await invoke('get_notes').then(notes => {
-        alert('Note saved!');
-       const note = document.getElementById('notesread').innerText = notes;
-        console.log('note',note);
-    })
-    .catch(err => alert('Error load notes: ' + err));
-  }
-  
+    try {
+        const notes = await invoke('get_notes'); 
+        console.log(notes);
+        alert('Notes received');
+        const notesContainer = document.getElementById('notesread');
+        notesContainer.innerHTML = '';
+
+        notes.forEach(note => {  
+            const noteElement = document.createElement('div');
+            noteElement.classList.add('note-item');
+            noteElement.innerHTML = `
+                <div class="note-title">${note[1]}</div>
+                <div class="note-content">${note[2]}</div>
+            `;
+            notesContainer.appendChild(noteElement);
+        });
+    } catch (err) {
+        console.error('Error loading notes:', err);
+        alert('Error loading notes: ' + err);
+    }
+}
+
   async function updateNote() {
     const id = parseInt(document.getElementById('updateId').value, 10);
     const title = document.getElementById('updateTitle').value;
@@ -57,27 +71,53 @@ async function createNote() {
           alert('Erreur lors de l\'exportation de toutes les notes en PDF: ' + error);
       });
   }
-  async function searchNotes() {
-    const query = document.getElementById('searchQuery').value;
+//   async function searchNotes() {
+//     const query = document.getElementById('searchQuery').value;
 
-    await invoke('search_notes', { query })
-        .then(notes => {
-            const resultsElement = document.getElementById('searchResults');
-            resultsElement.innerHTML = '';
-            console.log('notes',notes);
-            if (notes.length === 0) {
-                resultsElement.innerHTML = '<li>Aucune note trouvée.</li>';
-            } else {
-                notes.forEach(note => {
-                    const li = document.createElement('li');
-                    li.textContent = `Titre: ${note.title}, Contenu: ${note.content}`;
-                    resultsElement.appendChild(li);
-                });
-            }
-        })
-        .catch(err => {
-            alert('Erreur lors de la recherche de notes: ' + err);
-        });
+//     await invoke('search_notes', { query })
+//         .then(notes => {
+//             const resultsElement = document.getElementById('searchResults');
+//             resultsElement.innerHTML = '';
+//             console.log('notes',notes);
+//             if (notes.length === 0) {
+//                 resultsElement.innerHTML = '<li>Aucune note trouvée.</li>';
+//             } else {
+//                 notes.forEach(note => {
+//                     const li = document.createElement('li');
+//                     li.textContent = `Titre: ${note.title}, Contenu: ${note.content}`;
+//                     resultsElement.appendChild(li);
+//                 });
+//             }
+//         })
+//         .catch(err => {
+//             alert('Erreur lors de la recherche de notes: ' + err);
+//         });
+// }
+async function searchNotes(queryString) {
+  console.log('searchNotes() called');
+  try {
+      const notes = await invoke('search_notes', { query: queryString });
+      console.log('Filtered Notes:', notes);
+      displayNotes(notes); 
+  } catch (err) {
+      console.error('Error searching notes:', err);
+      alert('Error searching notes: ' + err);
+  }
+}
+
+function displayNotes(notes) {
+  const notesContainer = document.getElementById('notesread');
+  notesContainer.innerHTML = ''; 
+
+  notes.forEach(note => {
+      const noteElement = document.createElement('div');
+      noteElement.classList.add('note-item');
+      noteElement.innerHTML = `
+          <div class="note-title">${note[1]}</div>
+          <div class="note-content">${note[2]}</div>
+      `;
+      notesContainer.appendChild(noteElement);
+  });
 }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -86,7 +126,15 @@ async function createNote() {
     const updateNoteButton = document.getElementById('updateNoteButton');
     const deleteNoteButton = document.getElementById('deleteNoteButton');
     const exportAllPdfButton = document.getElementById('exportAllPdfButton');
-    document.getElementById('searchButton').addEventListener('click', searchNotes);
+    // document.getElementById('searchButton').addEventListener('click', searchNotes);
+    // const searchButton = document.getElementById('searchButton');
+    // if (searchButtons) {
+    //     searchButton.addEventListener('click', () => searchNotes(document.getElementById('searchQuery').value));
+    // }
+    document.getElementById('searchButton').addEventListener('click', function() {
+      searchNotes(document.getElementById('searchQuery').value);
+  });
+  
     if(exportAllPdfButton){
       exportAllPdfButton.addEventListener('click', exportAllNotes);
     }

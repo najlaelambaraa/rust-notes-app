@@ -103,3 +103,39 @@ button:hover {
 .content.active {
   display: block;
 }
+/* Styles pour la division d'affichage des notes */
+#notesDisplay, #notesread {
+  background: white;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  max-height: 400px; /* Limite la hauteur et ajoute un scrollbar si nécessaire */
+}
+
+.note-item {
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+
+.note-item:last-child {
+  border-bottom: none;
+}
+
+.note-item:hover {
+  background-color: #f9f9f9;
+}
+
+.note-title {
+  font-weight: bold;
+  color: #333;
+}
+
+.note-content {
+  margin-top: 5px;
+  color: #666;
+  white-space: pre-wrap; /* Garde la mise en forme du texte, comme les sauts de ligne */
+}
