@@ -60,3 +60,21 @@ cd rust-notes-app
 - **`src/`** : Contient tous les fichiers relatifs à l'interface utilisateur, comme le HTML, le CSS, et le JavaScript.
 - **`src-tauri/`** : Contient tous les fichiers spécifiques à Tauri, y compris la configuration de Rust et les fichiers source.
 - **`target/release/`** : Dossier généré par le système de build Rust, contenant les exécutables compilés pour la distribution.
+
+## Utilisation
+
+### Création de Notes
+
+Pour créer une note, ouvrez l'application et accédez à la section de création de notes. Entrez le titre et le contenu de votre note et choisissez de la sauvegarder localement ou dans la base de données.
+
+### Exportation en PDF
+
+Pour exporter des notes en PDF, naviguez vers la section 'Export PDF' de l'application, sélectionnez les notes à exporter, et cliquez sur 'Exporter en PDF'.
+
+## Configuration
+
+Les configurations spécifiques à l'application peuvent être ajustées dans le fichier `tauri.conf.json`.
+
+## Auteur
+
+Najlae LAMBARAA

@@ -76,7 +76,7 @@ window.addEventListener('DOMContentLoaded', () => {
     delete_Note()
 });
 document.getElementById('exportPdfBtn').addEventListener('click', () => {
-  window.__TAURI__.invoke('export_notes_to_pdf', { filePath: 'path/to/save/output.pdf' })
+  window.__TAURI__.invoke('export_all_notes_to_pdf', { filePath: 'path/to/save/output.pdf' })
       .then(response => {
           console.log('PDF generated successfully!', response);
       })

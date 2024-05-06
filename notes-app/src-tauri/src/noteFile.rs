@@ -77,10 +77,10 @@ pub fn delete_file_note(note_id: String) -> Result<(), String> {
         Err("Note ID out of range".to_string())
     }
 }
-// use genpdf::{Document, elements};
-// use genpdf::fonts::FontFamily;
-// use tauri::command;
-// use dirs;
+use genpdf::{Document, elements};
+use genpdf::fonts::FontFamily;
+use tauri::command;
+use dirs;
 // #[tauri::command]
 // pub fn export_notes_to_pdf() -> Result<String, String> {
 //     let notes = std::fs::read_to_string("notes.txt").map_err(|e| e.to_string())?;
@@ -99,4 +99,37 @@ pub fn delete_file_note(note_id: String) -> Result<(), String> {
 //     doc.render_to_file(&output_path).map_err(|e| e.to_string())?;
 
 //     Ok(output_path.to_str().unwrap_or_default().to_string())
+// }
+
+// #[tauri::command]
+// pub fn export_all_notes_to_pdf() -> Result<String, String> {
+//     let conn = Connection::open("notes.db").map_err(|e| e.to_string())?;
+//     let mut stmt = conn.prepare("SELECT title, content FROM notes").map_err(|e| e.to_string())?;
+//     let notes_iter = stmt.query_map(params![], |row| {
+//         Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+//     }).map_err(|e| e.to_string())?;
+
+//     let font_family = fonts::from_files("./src/static", "OpenSans", None)
+//         .map_err(|e| format!("Failed to load font family: {}", e))?;
+//     let mut doc = Document::new(font_family);
+//     doc.set_page_decorator(SimplePageDecorator::new());
+
+//     for note in notes_iter {
+//         let (title, content) = note.map_err(|e| e.to_string())?;
+//         let mut header_style = style::Style::new();
+//         header_style.set_font_size(18);
+//         let header = elements::Paragraph::new(&title).styled(header_style);
+//         doc.push(header);
+
+//         let mut text_style = style::Style::new();
+//         text_style.set_font_size(12);
+//         let text = elements::Paragraph::new(&content).styled(text_style);
+//         doc.push(text);
+//     }
+
+//     let file_path = "all_notes.pdf";
+//     let file = File::create(file_path).map_err(|e| e.to_string())?;
+//     doc.render(file).map_err(|e| e.to_string())?;
+
+//     Ok(format!("All notes exported to {}", file_path))
 // }
